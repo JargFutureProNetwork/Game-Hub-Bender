@@ -56,9 +56,12 @@
     ]).then(function (res) {
       schema = res[0];
       published = res[1] || {};
-      // применяем несохранённое локальное превью поверх опубликованного
-      var preview = readPreview();
-      content = Object.assign({}, published, preview || {});
+      // Начинаем всегда с опубликованной версии и убираем «заброшенный»
+      // черновик прошлой сессии: иначе устаревшие значения могли бы снова
+      // попасть в поля и быть повторно опубликованы. Свежее превью пишется
+      // по мере редактирования (для режима ?preview=1 на живом сайте).
+      clearPreview();
+      content = Object.assign({}, published);
       // значения по умолчанию из схемы, если ключа нет нигде
       schema.sections.forEach(function(sec){ sec.fields.forEach(function(f){
         if (!(f.key in content)) content[f.key] = '';

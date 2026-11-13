@@ -93,8 +93,15 @@
     } catch (e) { return null; }
   }
 
+  // Несохранённые правки показываем ТОЛЬКО в явном режиме предпросмотра
+  // (ссылка «Открыть сайт» из редактора добавляет ?preview=1). Обычные
+  // посетители всегда видят опубликованную версию, а «заброшенный» черновик
+  // в localStorage никогда не попадает на живой сайт.
+  var PREVIEW_ON = /[?&]preview=1(?:&|$)/.test(location.search)
+                || /(?:^#|&)preview=1(?:&|$)/.test(location.hash);
+
   // 1) мгновенно применяем локальное превью (если есть) — ещё до сети
-  var preview = readPreview();
+  var preview = PREVIEW_ON ? readPreview() : null;
   function runPreview() { if (preview) hydrate(preview); }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', runPreview);
